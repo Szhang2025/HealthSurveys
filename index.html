@@ -59,7 +59,7 @@
       margin-top: 12px;
     }
     @media (min-width: 680px) {
-      .demo-grid { grid-template-columns: repeat(4, 1fr); }
+      .demo-grid { grid-template-columns: repeat(3, 1fr); }
     }
 
     .field-group label {
@@ -384,10 +384,6 @@
           <span class="hint">Male: ADAM + PHQ-9 &nbsp;|&nbsp; Female / Prefer not to say: PHQ-9 only</span>
         </div>
         <div class="field-group">
-          <label for="participantId">Participant ID / 编号或姓名缩写</label>
-          <input type="text" id="participantId" placeholder="e.g., P001">
-        </div>
-        <div class="field-group">
           <label for="age">Age (Years) / 年龄（岁）</label>
           <input type="number" id="age" min="18" max="120" placeholder="e.g., 52">
         </div>
@@ -603,7 +599,6 @@
           }
         });
       }
-      // Non-male respondents: adamAnswers stays empty — intentionally not collected.
 
       const phqAnswers = [];
       let phqAnswered = 0;
@@ -638,7 +633,6 @@
       return {
         gender: gender,
         isMale: isMale,
-        participantId: document.getElementById("participantId").value.trim(),
         age: document.getElementById("age").value.trim(),
         waist: document.getElementById("waist").value.trim(),
         adamAnswers: adamAnswers,
@@ -736,7 +730,7 @@
       const data = collectResponses();
       const personalDiv = document.getElementById("personal-results-container");
 
-      if (data.isMale && data.adamAnswered > 0 || data.phqAnswered > 0) {
+      if ((data.isMale && data.adamAnswered > 0) || data.phqAnswered > 0) {
         const adamClass =
           data.isMale && data.adamAnswered > 0
             ? (data.adamResult === "Positive" ? "positive" : "negative")
@@ -826,20 +820,16 @@
           recentRowsHtml +=
             "<tr>" +
               "<td>" + r.timestamp + "</td>" +
-              "<td>" + r.participantId + "</td>" +
               "<td>" + genderLabel + "</td>" +
               "<td>" + adamCell + "</td>" +
               "<td>" + r.phqTotal + " — " + r.phqSeverity + "</td>" +
             "</tr>";
         });
 
-        const adamPctText = males > 0
-          ? (summary.adamPositivePct + "%")
-          : "N/A";
+        const adamPctText = males > 0 ? (summary.adamPositivePct + "%") : "N/A";
         const adamPctLbl = males > 0
           ? ("ADAM Positive (" + summary.adamPositiveCount + "/" + males + ")<br />ADAM 筛查阳性率")
           : "ADAM Positive<br />ADAM 筛查阳性率";
-        const adamAvgText = males > 0 ? summary.avgAdamYes : "N/A";
 
         cohortDiv.innerHTML =
           '<div class="stat-grid">' +
@@ -857,7 +847,7 @@
           barsHtml +
           '<h4 style="margin: 20px 0 8px;">Recent 5 Submissions | 最近 5 条提交记录</h4>' +
           "<table>" +
-            "<thead><tr><th>Timestamp / 时间</th><th>ID / 编号</th><th>Gender / 性别</th><th>ADAM (\"Yes\" / 结果)</th><th>PHQ-9 (Score / 分级)</th></tr></thead>" +
+            "<thead><tr><th>Timestamp / 时间</th><th>Gender / 性别</th><th>ADAM (\"Yes\" / 结果)</th><th>PHQ-9 (Score / 分级)</th></tr></thead>" +
             "<tbody>" + recentRowsHtml + "</tbody>" +
           "</table>";
       } catch (err) {
@@ -870,7 +860,6 @@
       document.getElementById("adam-form").reset();
       document.getElementById("phq-form").reset();
       document.getElementById("gender").value = "";
-      document.getElementById("participantId").value = "";
       document.getElementById("age").value = "";
       document.getElementById("waist").value = "";
       document.getElementById("statusBanner").className = "status-banner";
