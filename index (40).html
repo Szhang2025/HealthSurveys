@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bilingual Health Screening: ADAM &amp; PHQ-9 | 双语健康筛查问卷</title>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-light: #eff6ff;
+      --accent: #0f766e;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --warn-bg: #fef2f2;
+      --warn-border: #fca5a5;
+      --warn-text: #991b1b;
+      --ok-bg: #f0fdf4;
+      --ok-border: #86efac;
+      --ok-text: #166534;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 24px 16px 60px;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    header, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    header h1 { margin: 0 0 8px; font-size: 1.6rem; color: var(--primary); }
+    header p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (min-width: 680px) {
+      .demo-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .field-group input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .section-header {
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+    .section-header h2 { margin: 0 0 6px; font-size: 1.3rem; }
+    .adam-title { color: var(--primary); }
+    .phq-title { color: var(--accent); }
+    .instructions { font-size: 0.9rem; color: var(--muted); margin: 0; }
+
+    .question-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 15px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .question-row:last-of-type { border-bottom: none; }
+
+    @media (min-width: 720px) {
+      .question-row.adam-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .q-text { flex: 1; padding-right: 12px; }
+    .q-en { font-weight: 600; display: block; margin-bottom: 2px; }
+    .q-zh { color: var(--muted); font-size: 0.93rem; display: block; }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--primary-light);
+      color: var(--primary);
+      margin-left: 6px;
+    }
+
+    .options-yesno { display: flex; gap: 10px; flex-shrink: 0; }
+    .options-likert {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    @media (min-width: 680px) {
+      .options-likert { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .radio-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+      user-select: none;
+      background: #ffffff;
+    }
+    .radio-pill input { display: none; }
+    .radio-pill:hover { background: #f1f5f9; }
+    .radio-pill.selected-adam {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+    .radio-pill.selected-phq {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    button:hover:not(:disabled) { background: #f1f5f9; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    button.primary-btn {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+    button.primary-btn:hover:not(:disabled) { background: #1d4ed8; }
+
+    button.accent-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+    button.accent-btn:hover:not(:disabled) { background: #115e59; }
+
+    .status-banner {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .status-banner.success {
+      display: block;
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-border);
+      color: var(--ok-text);
+    }
+    .status-banner.error {
+      display: block;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+    }
+
+    #results-panel { display: none; }
+
+    .personal-score-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    @media (min-width: 680px) {
+      .personal-score-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .score-card {
+      padding: 16px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .score-card.positive {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+      color: var(--warn-text);
+    }
+    .score-card.negative {
+      background: var(--ok-bg);
+      border-color: var(--ok-border);
+      color: var(--ok-text);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    @media (min-width: 680px) {
+      .stat-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .stat-box {
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+    }
+    .stat-lbl {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .bar-row { margin-bottom: 10px; }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      margin-bottom: 4px;
+    }
+    .bar-track {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.88rem;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th { background: #f8fafc; }
+
+    .safety-alert {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #7f1d1d;
+      color: #ffffff;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .footnote {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Bilingual Health Screening Questionnaires | 双语健康筛查问卷</h1>
+      <p>
+        <strong>ADAM Questionnaire</strong> (Androgen Deficiency Screening / 雄激素缺乏筛查量表) &amp;
+        <strong>PHQ-9</strong> (Depression Screening / 抑郁症状筛查量表)
+      </p>
+    </header>
+
+    <section class="card">
+      <div class="section-header">
+        <h2>Respondent Info (Optional) | 受访者基本信息（选填）</h2>
+        <p class="instructions">Optional fields for research grouping (e.g., age or waistline analysis). / 仅用于科研统计分组（如年龄或腰围分析）。</p>
+      </div>
+      <div class="demo-grid">
+        <div class="field-group">
+          <label for="participantId">Participant ID / 编号或姓名缩写</label>
+          <input type="text" id="participantId" placeholder="e.g., P001" />
+        </div>
+        <div class="field-group">
+          <label for="age">Age (Years) / 年龄（岁）</label>
+          <input type="number" id="age" min="18" max="120" placeholder="e.g., 52" />
+        </div>
+        <div class="field-group">
+          <label for="waist">Waistline (cm) / 腰围（厘米）</label>
+          <input type="number" id="waist" min="40" max="250" step="0.1" placeholder="e.g., 95.5" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <h2 class="adam-title">Part 1: The ADAM Questionnaire (10 Yes/No Items) | 第一部分：ADAM 雄激素缺乏筛查问卷</h2>
+        <p class="instructions">
+          Please answer "Yes" or "No" to each of the following 10 questions based on how you feel recently.<br />
+          请根据您近期的身体与精神感受，对以下 10 个问题选择“是”或“否”。
+        </p>
+      </div>
+      <form id="adam-form"></form>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <h2 class="phq-title">Part 2: The PHQ-9 Depression Scale | 第二部分：PHQ-9 抑郁症状筛查量表</h2>
+        <p class="instructions">
+          Over the <strong>last 2 weeks</strong>, how often have you been bothered by any of the following problems?<br />
+          在<strong>过去两周</strong>内，您有多少时候受到以下任何问题的困扰？
+        </p>
+      </div>
+      <form id="phq-form"></form>
+    </section>
+
+    <section class="card">
+      <div class="action-bar">
+        <button type="button" class="primary-btn" id="submitBtn" onclick="handleSubmit()">
+          Submit to Google Sheet | 提交至 Google 表格
+        </button>
+        <button type="button" class="accent-btn" id="showResultsBtn" onclick="handleShowResults()">
+          Show Survey Results | 查看调查结果
+        </button>
+        <button type="button" onclick="resetForm()">
+          Reset Form | 重置问卷
+        </button>
+      </div>
+      <div id="statusBanner" class="status-banner"></div>
+    </section>
+
+    <section class="card" id="results-panel">
+      <div class="section-header">
+        <h2>Survey Results &amp; Cohort Summary | 个人评估与总体调查结果</h2>
+        <p class="instructions">Live summary calculated directly from Google Sheets responses. / 实时汇总自 Google 表格中的全部有效数据。</p>
+      </div>
+
+      <div id="personal-results-container"></div>
+      <div id="phq9-alert" class="safety-alert">
+        <strong>Important Notice / 重要提示：</strong> Item 9 indicates thoughts of self-harm. Please reach out to a healthcare professional or crisis support service immediately (e.g., call or text <strong>988</strong> in the US/Canada, or contact your local emergency hotline).<br />
+        第 9 题提示存在自我伤害的想法。请立即联系专业医生或心理危机干预热线寻求帮助。
+      </div>
+
+      <h3 style="margin-top: 22px; margin-bottom: 8px;">All Respondents Summary (Google Sheet) | 全部受访者统计汇总</h3>
+      <div id="cohort-results-container">Click "Show Survey Results" to load data.</div>
+    </section>
+
+    <div class="footnote">
+      This is for informational purposes only. For medical advice or diagnosis, consult a professional. AI responses may include mistakes.
+    </div>
+  </div>
+
+  <script>
+    // PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL BELOW:
+    const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID_HERE/exec";
+
+    const adamQuestions = [
+      { en: "1. Do you have a decrease in libido (sex drive)?", zh: "1. 您是否有性欲减退？", keyItem: true },
+      { en: "2. Do you have a lack of energy?", zh: "2. 您是否感到精力不足、容易疲劳？", keyItem: false },
+      { en: "3. Do you have a decrease in strength and/or endurance?", zh: "3. 您是否有体力（力量）和/或耐力下降？", keyItem: false },
+      { en: "4. Have you lost height?", zh: "4. 您的身高是否有变矮？", keyItem: false },
+      { en: "5. Have you noticed a decreased "enjoyment of life"?", zh: "5. 您是否觉得“生活乐趣”减少了？", keyItem: false },
+      { en: "6. Are you sad and/or grumpy?", zh: "6. 您是否经常感到悲伤和/或容易发脾气（暴躁）？", keyItem: false },
+      { en: "7. Are your erections less strong?", zh: "7. 您的勃起硬度是否不如以前？", keyItem: true },
+      { en: "8. Have you noticed a recent deterioration in your ability to play sports?", zh: "8. 您是否注意到近期运动能力有所下降？", keyItem: false },
+      { en: "9. Are you falling asleep after dinner?", zh: "9. 您是否晚饭后就容易打瞌睡？", keyItem: false },
+      { en: "10. Has there been a recent deterioration in your work performance?", zh: "10. 您近期的工作表现或效率是否有所下降？", keyItem: false }
+    ];
+
+    const phqQuestions = [
+      { en: "1. Little interest or pleasure in doing things", zh: "1. 做事时提不起劲或没有兴趣" },
+      { en: "2. Feeling down, depressed, or hopeless", zh: "2. 感到心情低落、沮丧或绝望" },
+      { en: "3. Trouble falling or staying asleep, or sleeping too much", zh: "3. 入睡困难、睡不安稳或睡眠过多" },
+      { en: "4. Feeling tired or having little energy", zh: "4. 感觉疲倦或没有活力" },
+      { en: "5. Poor appetite or overeating", zh: "5. 食欲不振或吃太多" },
+      { en: "6. Feeling bad about yourself — or that you are a failure or have let yourself or your family down", zh: "6. 觉得自己很糟——或觉得自己很失败，或让自己、家人失望" },
+      { en: "7. Trouble concentrating on things, such as reading the newspaper or watching television", zh: "7. 对事物专注有困难，例如阅读报纸或看电视时" },
+      { en: "8. Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual", zh: "8. 动作或说话速度缓慢到别人已经察觉？或正好相反——烦躁或坐立不安、动来动去的情况更胜于平常" },
+      { en: "9. Thoughts that you would be better off dead, or of hurting yourself in some way", zh: "9. 有不如死掉或用某种方式伤害自己的念头" }
+    ];
+
+    const phqOptions = [
+      { val: 0, en: "0 - Not at all", zh: "完全不会" },
+      { val: 1, en: "1 - Several days", zh: "好几天" },
+      { val: 2, en: "2 - More than half the days", zh: "一半以上的天数" },
+      { val: 3, en: "3 - Nearly every day", zh: "几乎每天" }
+    ];
+
+    function renderForms() {
+      let adamHtml = "";
+      adamQuestions.forEach(function(q, i) {
+        const badge = q.keyItem ? '<span class="badge">Key Item / 核心项</span>' : '';
+        adamHtml +=
+          '<div class="question-row adam-row">' +
+            '<div class="q-text">' +
+              '<span class="q-en">' + q.en + ' ' + badge + '</span>' +
+              '<span class="q-zh">' + q.zh + '</span>' +
+            '</div>' +
+            '<div class="options-yesno">' +
+              '<label class="radio-pill" id="adam_' + i + '_yes_lbl">' +
+                '<input type="radio" name="adam_' + i + '" value="1" onchange="highlightSelection()" /> Yes / 是' +
+              '</label>' +
+              '<label class="radio-pill" id="adam_' + i + '_no_lbl">' +
+                '<input type="radio" name="adam_' + i + '" value="0" onchange="highlightSelection()" /> No / 否' +
+              '</label>' +
+            '</div>' +
+          '</div>';
+      });
+      document.getElementById("adam-form").innerHTML = adamHtml;
+
+      let phqHtml = "";
+      phqQuestions.forEach(function(q, i) {
+        let optsHtml = "";
+        phqOptions.forEach(function(opt) {
+          optsHtml +=
+            '<label class="radio-pill" id="phq_' + i + '_' + opt.val + '_lbl">' +
+              '<input type="radio" name="phq_' + i + '" value="' + opt.val + '" onchange="highlightSelection()" />' +
+              '<div><strong>' + opt.en + '</strong><br /><span>' + opt.zh + '</span></div>' +
+            '</label>';
+        });
+        phqHtml +=
+          '<div class="question-row">' +
+            '<div class="q-text">' +
+              '<span class="q-en">' + q.en + '</span>' +
+              '<span class="q-zh">' + q.zh + '</span>' +
+            '</div>' +
+            '<div class="options-likert">' + optsHtml + '</div>' +
+          '</div>';
+      });
+      document.getElementById("phq-form").innerHTML = phqHtml;
+    }
+
+    function highlightSelection() {
+      adamQuestions.forEach(function(_, i) {
+        const sel = document.querySelector('input[name="adam_' + i + '"]:checked');
+        document.getElementById("adam_" + i + "_yes_lbl").classList.toggle("selected-adam", Boolean(sel && sel.value === "1"));
+        document.getElementById("adam_" + i + "_no_lbl").classList.toggle("selected-adam", Boolean(sel && sel.value === "0"));
+      });
+
+      phqQuestions.forEach(function(_, i) {
+        const sel = document.querySelector('input[name="phq_' + i + '"]:checked');
+        phqOptions.forEach(function(opt) {
+          document.getElementById("phq_" + i + "_" + opt.val + "_lbl").classList.toggle(
+            "selected-phq",
+            Boolean(sel && Number(sel.value) === opt.val)
+          );
+        });
+      });
+    }
+
+    function collectResponses() {
+      const adamAnswers = [];
+      let adamAnswered = 0;
+      let adamYesCount = 0;
+
+      adamQuestions.forEach(function(_, i) {
+        const sel = document.querySelector('input[name="adam_' + i + '"]:checked');
+        if (sel) {
+          const val = Number(sel.value);
+          adamAnswers.push(val);
+          adamAnswered++;
+          adamYesCount += val;
+        } else {
+          adamAnswers.push(null);
+        }
+      });
+
+      const phqAnswers = [];
+      let phqAnswered = 0;
+      let phqTotal = 0;
+
+      phqQuestions.forEach(function(_, i) {
+        const sel = document.querySelector('input[name="phq_' + i + '"]:checked');
+        if (sel) {
+          const val = Number(sel.value);
+          phqAnswers.push(val);
+          phqAnswered++;
+          phqTotal += val;
+        } else {
+          phqAnswers.push(null);
+        }
+      });
+
+      const isAdamPositive = (adamAnswers[0] === 1) || (adamAnswers[6] === 1) || (adamYesCount >= 3);
+      const adamResult = isAdamPositive ? "Positive" : "Negative";
+
+      let phqSeverity = "Minimal (0-4)";
+      if (phqTotal >= 20) phqSeverity = "Severe (20-27)";
+      else if (phqTotal >= 15) phqSeverity = "Moderately Severe (15-19)";
+      else if (phqTotal >= 10) phqSeverity = "Moderate (10-14)";
+      else if (phqTotal >= 5) phqSeverity = "Mild (5-9)";
+
+      return {
+        participantId: document.getElementById("participantId").value.trim(),
+        age: document.getElementById("age").value.trim(),
+        waist: document.getElementById("waist").value.trim(),
+        adamAnswers: adamAnswers,
+        adamAnswered: adamAnswered,
+        adamYesCount: adamYesCount,
+        adamResult: adamResult,
+        phqAnswers: phqAnswers,
+        phqAnswered: phqAnswered,
+        phqTotal: phqTotal,
+        phqSeverity: phqSeverity,
+        q9Score: phqAnswers[8] || 0
+      };
+    }
+
+    function showBanner(type, text) {
+      const banner = document.getElementById("statusBanner");
+      banner.className = "status-banner " + type;
+      banner.textContent = text;
+    }
+
+    async function handleSubmit() {
+      const data = collectResponses();
+
+      if (data.adamAnswered < 10 || data.phqAnswered < 9) {
+        showBanner(
+          "error",
+          "Please answer all questions before submitting (ADAM: " + data.adamAnswered + "/10, PHQ-9: " + data.phqAnswered + "/9). / 提交前请完成所有题目。"
+        );
+        return;
+      }
+
+      if (SCRIPT_URL.indexOf("YOUR_DEPLOYMENT_ID_HERE") !== -1) {
+        showBanner("error", "Please replace SCRIPT_URL in index.html with your deployed Google Apps Script Web App URL.");
+        return;
+      }
+
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.textContent = "Saving... / 正在保存...";
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(data)
+        });
+        const res = await response.json();
+
+        if (res.status === "success") {
+          showBanner(
+            "success",
+            res.message + " (Total saved responses / 当前总样本数: " + res.totalResponses + '). Click "Show Survey Results" to view results.'
+          );
+        } else {
+          showBanner("error", "Error saving data / 保存失败: " + res.message);
+        }
+      } catch (err) {
+        showBanner("error", "Network error / 网络连接错误: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Submit to Google Sheet | 提交至 Google 表格";
+      }
+    }
+
+    async function handleShowResults() {
+      const panel = document.getElementById("results-panel");
+      panel.style.display = "block";
+      panel.scrollIntoView({ behavior: "smooth" });
+
+      const data = collectResponses();
+      const personalDiv = document.getElementById("personal-results-container");
+
+      if (data.adamAnswered > 0 || data.phqAnswered > 0) {
+        const adamClass = data.adamResult === "Positive" ? "positive" : "negative";
+        const phqClass = (data.phqTotal >= 10 || data.q9Score > 0) ? "positive" : "negative";
+        const adamLabel = data.adamResult === "Positive" ? "POSITIVE / 阳性" : "NEGATIVE / 阴性";
+
+        personalDiv.innerHTML =
+          '<h3 style="margin-top: 0; margin-bottom: 10px;">Your Current Assessment | 您本次的筛查得分</h3>' +
+          '<div class="personal-score-grid">' +
+            '<div class="score-card ' + adamClass + '">' +
+              '<strong>ADAM Screening | 雄激素缺乏筛查：' + adamLabel + '</strong><br />' +
+              '<span>"Yes" count / “是”的题数：' + data.adamYesCount + ' / 10 (' + data.adamAnswered + '/10 answered)</span>' +
+            '</div>' +
+            '<div class="score-card ' + phqClass + '">' +
+              '<strong>PHQ-9 Depression Score | 抑郁量表总分：' + data.phqTotal + ' / 27</strong><br />' +
+              '<span>Severity / 程度分级：' + data.phqSeverity + ' (' + data.phqAnswered + '/9 answered)</span>' +
+            '</div>' +
+          '</div>';
+      } else {
+        personalDiv.innerHTML = "";
+      }
+
+      document.getElementById("phq9-alert").style.display = data.q9Score > 0 ? "block" : "none";
+
+      const cohortDiv = document.getElementById("cohort-results-container");
+
+      if (SCRIPT_URL.indexOf("YOUR_DEPLOYMENT_ID_HERE") !== -1) {
+        cohortDiv.innerHTML = '<p style="color:#991b1b;">Configure SCRIPT_URL in index.html to load Google Sheet cohort results.</p>';
+        return;
+      }
+
+      cohortDiv.innerHTML = "Loading summary from Google Sheet... / 正在从 Google 表格加载汇总数据...";
+
+      try {
+        const response = await fetch(SCRIPT_URL);
+        const summary = await response.json();
+
+        if (summary.totalResponses === 0) {
+          cohortDiv.innerHTML = "<p>No responses saved in the Google Sheet yet. / 表格中暂无已保存的调查数据。</p>";
+          return;
+        }
+
+        const n = summary.totalResponses;
+        const distEntries = Object.entries(summary.phqDistribution);
+        let barsHtml = "";
+
+        distEntries.forEach(function(pair) {
+          const label = pair[0];
+          const count = pair[1];
+          const pct = ((count / n) * 100).toFixed(1);
+          barsHtml +=
+            '<div class="bar-row">' +
+              '<div class="bar-label">' +
+                '<span>' + label + '</span>' +
+                '<span><strong>' + count + '</strong> (' + pct + '%)</span>' +
+              '</div>' +
+              '<div class="bar-track">' +
+                '<div class="bar-fill" style="width: ' + pct + '%;"></div>' +
+              '</div>' +
+            '</div>';
+        });
+
+        let recentRowsHtml = "";
+        summary.recentSubmissions.forEach(function(r) {
+          recentRowsHtml +=
+            '<tr>' +
+              '<td>' + r.timestamp + '</td>' +
+              '<td>' + r.participantId + '</td>' +
+              '<td>' + r.adamYes + ' (' + r.adamResult + ')</td>' +
+              '<td>' + r.phqTotal + ' — ' + r.phqSeverity + '</td>' +
+            '</tr>';
+        });
+
+        cohortDiv.innerHTML =
+          '<div class="stat-grid">' +
+            '<div class="stat-box"><span class="stat-num">' + n + '</span><span class="stat-lbl">Total Respondents<br />总受访人数</span></div>' +
+            '<div class="stat-box"><span class="stat-num">' + summary.adamPositivePct + '%</span><span class="stat-lbl">ADAM Positive (' + summary.adamPositiveCount + '/' + n + ')<br />ADAM 筛查阳性率</span></div>' +
+            '<div class="stat-box"><span class="stat-num">' + summary.avgAdamYes + '</span><span class="stat-lbl">Mean ADAM "Yes"<br />ADAM 平均阳性项数</span></div>' +
+            '<div class="stat-box"><span class="stat-num">' + summary.avgPhqScore + '</span><span class="stat-lbl">Mean PHQ-9 Score<br />PHQ-9 平均总分</span></div>' +
+          '</div>' +
+          '<h4 style="margin: 18px 0 10px;">PHQ-9 Severity Distribution | 抑郁程度分布</h4>' +
+          barsHtml +
+          '<h4 style="margin: 20px 0 8px;">Recent 5 Submissions | 最近 5 条提交记录</h4>' +
+          '<table>' +
+            '<thead><tr><th>Timestamp / 时间</th><th>ID / 编号</th><th>ADAM ("Yes" / 结果)</th><th>PHQ-9 (Score / 分级)</th></tr></thead>' +
+            '<tbody>' + recentRowsHtml + '</tbody>' +
+          '</table>';
+      } catch (err) {
+        cohortDiv.innerHTML = '<p style="color:#991b1b;">Error loading results: ' + err.message + '</p>';
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("adam-form").reset();
+      document.getElementById("phq-form").reset();
+      document.getElementById("participantId").value = "";
+      document.getElementById("age").value = "";
+      document.getElementById("waist").value = "";
+      document.getElementById("statusBanner").className = "status-banner";
+      highlightSelection();
+    }
+
+    renderForms();
+  </script>
+</body>
+</html>
