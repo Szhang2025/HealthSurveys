@@ -21,6 +21,9 @@
       --ok-bg: #f0fdf4;
       --ok-border: #86efac;
       --ok-text: #166534;
+      --note-bg: #fffbeb;
+      --note-border: #fcd34d;
+      --note-text: #78350f;
     }
 
     * { box-sizing: border-box; }
@@ -56,7 +59,7 @@
       margin-top: 12px;
     }
     @media (min-width: 680px) {
-      .demo-grid { grid-template-columns: repeat(3, 1fr); }
+      .demo-grid { grid-template-columns: repeat(4, 1fr); }
     }
 
     .field-group label {
@@ -65,12 +68,21 @@
       font-weight: 600;
       margin-bottom: 4px;
     }
-    .field-group input {
+    .field-group input,
+    .field-group select {
       width: 100%;
       padding: 8px 10px;
       border: 1px solid var(--border);
       border-radius: 8px;
       font-size: 0.95rem;
+      background: #ffffff;
+      font-family: inherit;
+    }
+    .field-group .hint {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
     }
 
     .section-header {
@@ -82,6 +94,17 @@
     .adam-title { color: var(--primary); }
     .phq-title { color: var(--accent); }
     .instructions { font-size: 0.9rem; color: var(--muted); margin: 0; }
+
+    .skip-note {
+      display: none;
+      margin-top: 4px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--note-bg);
+      border: 1px solid var(--note-border);
+      color: var(--note-text);
+      font-size: 0.88rem;
+    }
 
     .question-row {
       display: flex;
@@ -220,7 +243,7 @@
       margin-bottom: 22px;
     }
     @media (min-width: 680px) {
-      .personal-score-grid { grid-template-columns: 1fr 1fr; }
+      .personal-score-grid.two-col { grid-template-columns: 1fr 1fr; }
     }
 
     .score-card {
@@ -238,6 +261,11 @@
       background: var(--ok-bg);
       border-color: var(--ok-border);
       color: var(--ok-text);
+    }
+    .score-card.not-applicable {
+      background: #f1f5f9;
+      border-color: var(--border);
+      color: var(--muted);
     }
 
     .stat-grid {
@@ -311,6 +339,12 @@
       display: none;
     }
 
+    .subsection-note {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin: 6px 0 0;
+    }
+
     .footnote {
       font-size: 0.82rem;
       color: var(--muted);
@@ -325,20 +359,30 @@
     <header>
       <h1>Bilingual Health Screening Questionnaires | 双语健康筛查问卷</h1>
       <p>
-        <strong>ADAM Questionnaire</strong> (Androgen Deficiency Screening / 雄激素缺乏筛查量表) &amp;
-        <strong>PHQ-9</strong> (Depression Screening / 抑郁症状筛查量表)
+        <strong>ADAM Questionnaire</strong> (Androgen Deficiency Screening, male-only / 雄激素缺乏筛查量表，仅限男性) &amp;
+        <strong>PHQ-9</strong> (Depression Screening, all genders / 抑郁症状筛查量表，适用于所有性别)
       </p>
     </header>
 
     <section class="card">
       <div class="section-header">
-        <h2>Respondent Info (Optional) | 受访者基本信息（选填）</h2>
+        <h2>Respondent Info | 受访者基本信息</h2>
         <p class="instructions">
-          Optional fields for research grouping (e.g., age or waistline analysis). /
-          仅用于科研统计分组（如年龄或腰围分析）。
+          Gender is required because the ADAM questionnaire applies only to men. /
+          性别为必填项，因为 ADAM 问卷仅适用于男性。
         </p>
       </div>
       <div class="demo-grid">
+        <div class="field-group">
+          <label for="gender">Gender / 性别 <span style="color:#991b1b;">*</span></label>
+          <select id="gender" onchange="toggleAdamSection()">
+            <option value="">Select / 请选择</option>
+            <option value="male">Male / 男</option>
+            <option value="female">Female / 女</option>
+            <option value="other">Prefer not to say / 不愿透露</option>
+          </select>
+          <span class="hint">Male: ADAM + PHQ-9 &nbsp;|&nbsp; Female / Prefer not to say: PHQ-9 only</span>
+        </div>
         <div class="field-group">
           <label for="participantId">Participant ID / 编号或姓名缩写</label>
           <input type="text" id="participantId" placeholder="e.g., P001">
@@ -354,9 +398,9 @@
       </div>
     </section>
 
-    <section class="card">
+    <section class="card" id="adam-section" style="display: none;">
       <div class="section-header">
-        <h2 class="adam-title">Part 1: The ADAM Questionnaire (10 Yes/No Items) | 第一部分：ADAM 雄激素缺乏筛查问卷</h2>
+        <h2 class="adam-title">Part 1: The ADAM Questionnaire (10 Yes/No Items, male only) | 第一部分：ADAM 雄激素缺乏筛查问卷（仅限男性）</h2>
         <p class="instructions">
           Please answer "Yes" or "No" to each of the following 10 questions based on how you feel recently.<br>
           请根据您近期的身体与精神感受，对以下 10 个问题选择“是”或“否”。
@@ -367,11 +411,17 @@
 
     <section class="card">
       <div class="section-header">
-        <h2 class="phq-title">Part 2: The PHQ-9 Depression Scale | 第二部分：PHQ-9 抑郁症状筛查量表</h2>
+        <h2 class="phq-title">Part 2: The PHQ-9 Depression Scale (all genders) | 第二部分：PHQ-9 抑郁症状筛查量表（适用于所有性别）</h2>
         <p class="instructions">
           Over the <strong>last 2 weeks</strong>, how often have you been bothered by any of the following problems?<br>
           在<strong>过去两周</strong>内，您有多少时候受到以下任何问题的困扰？
         </p>
+        <div id="adam-skip-note" class="skip-note">
+          <strong>Note / 注：</strong> The ADAM questionnaire is a male-specific tool for androgen
+          deficiency screening, so it is not shown for your selection. The PHQ-9 below is
+          validated for all genders.<br>
+          ADAM 问卷为男性专用筛查工具，因此对您的选择不显示。以下 PHQ-9 适用于所有性别。
+        </div>
       </div>
       <form id="phq-form"></form>
     </section>
@@ -422,100 +472,31 @@
     // PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL BELOW:
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVqIiToitFkrZzxpxhA_4kVCWXu5dJEVLATtm8DtVjHRIywqU48YuPBInSR51s5gzWUw/exec";
 
-    // All 10 ADAM questions.
-    // Question 5 uses single quotes because the English text contains
-    // double quotes around "enjoyment of life".
+    // All 10 ADAM questions (male only).
     const adamQuestions = [
-      {
-        en: "1. Do you have a decrease in libido (sex drive)?",
-        zh: "1. 您是否有性欲减退？",
-        keyItem: true
-      },
-      {
-        en: "2. Do you have a lack of energy?",
-        zh: "2. 您是否感到精力不足、容易疲劳？",
-        keyItem: false
-      },
-      {
-        en: "3. Do you have a decrease in strength and/or endurance?",
-        zh: "3. 您是否有体力（力量）和/或耐力下降？",
-        keyItem: false
-      },
-      {
-        en: "4. Have you lost height?",
-        zh: "4. 您的身高是否有变矮？",
-        keyItem: false
-      },
-      {
-        en: '5. Have you noticed a decreased "enjoyment of life"?',
-        zh: "5. 您是否觉得“生活乐趣”减少了？",
-        keyItem: false
-      },
-      {
-        en: "6. Are you sad and/or grumpy?",
-        zh: "6. 您是否经常感到悲伤和/或容易发脾气（暴躁）？",
-        keyItem: false
-      },
-      {
-        en: "7. Are your erections less strong?",
-        zh: "7. 您的勃起硬度是否不如以前？",
-        keyItem: true
-      },
-      {
-        en: "8. Have you noticed a recent deterioration in your ability to play sports?",
-        zh: "8. 您是否注意到近期运动能力有所下降？",
-        keyItem: false
-      },
-      {
-        en: "9. Are you falling asleep after dinner?",
-        zh: "9. 您是否晚饭后就容易打瞌睡？",
-        keyItem: false
-      },
-      {
-        en: "10. Has there been a recent deterioration in your work performance?",
-        zh: "10. 您近期的工作表现或效率是否有所下降？",
-        keyItem: false
-      }
+      { en: "1. Do you have a decrease in libido (sex drive)?", zh: "1. 您是否有性欲减退？", keyItem: true },
+      { en: "2. Do you have a lack of energy?", zh: "2. 您是否感到精力不足、容易疲劳？", keyItem: false },
+      { en: "3. Do you have a decrease in strength and/or endurance?", zh: "3. 您是否有体力（力量）和/或耐力下降？", keyItem: false },
+      { en: "4. Have you lost height?", zh: "4. 您的身高是否有变矮？", keyItem: false },
+      { en: '5. Have you noticed a decreased "enjoyment of life"?', zh: "5. 您是否觉得“生活乐趣”减少了？", keyItem: false },
+      { en: "6. Are you sad and/or grumpy?", zh: "6. 您是否经常感到悲伤和/或容易发脾气（暴躁）？", keyItem: false },
+      { en: "7. Are your erections less strong?", zh: "7. 您的勃起硬度是否不如以前？", keyItem: true },
+      { en: "8. Have you noticed a recent deterioration in your ability to play sports?", zh: "8. 您是否注意到近期运动能力有所下降？", keyItem: false },
+      { en: "9. Are you falling asleep after dinner?", zh: "9. 您是否晚饭后就容易打瞌睡？", keyItem: false },
+      { en: "10. Has there been a recent deterioration in your work performance?", zh: "10. 您近期的工作表现或效率是否有所下降？", keyItem: false }
     ];
 
-    // All 9 PHQ-9 questions.
+    // All 9 PHQ-9 questions (all genders).
     const phqQuestions = [
-      {
-        en: "1. Little interest or pleasure in doing things",
-        zh: "1. 做事时提不起劲或没有兴趣"
-      },
-      {
-        en: "2. Feeling down, depressed, or hopeless",
-        zh: "2. 感到心情低落、沮丧或绝望"
-      },
-      {
-        en: "3. Trouble falling or staying asleep, or sleeping too much",
-        zh: "3. 入睡困难、睡不安稳或睡眠过多"
-      },
-      {
-        en: "4. Feeling tired or having little energy",
-        zh: "4. 感觉疲倦或没有活力"
-      },
-      {
-        en: "5. Poor appetite or overeating",
-        zh: "5. 食欲不振或吃太多"
-      },
-      {
-        en: "6. Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
-        zh: "6. 觉得自己很糟——或觉得自己很失败，或让自己、家人失望"
-      },
-      {
-        en: "7. Trouble concentrating on things, such as reading the newspaper or watching television",
-        zh: "7. 对事物专注有困难，例如阅读报纸或看电视时"
-      },
-      {
-        en: "8. Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual",
-        zh: "8. 动作或说话速度缓慢到别人已经察觉？或正好相反——烦躁或坐立不安、动来动去的情况更胜于平常"
-      },
-      {
-        en: "9. Thoughts that you would be better off dead, or of hurting yourself in some way",
-        zh: "9. 有不如死掉或用某种方式伤害自己的念头"
-      }
+      { en: "1. Little interest or pleasure in doing things", zh: "1. 做事时提不起劲或没有兴趣" },
+      { en: "2. Feeling down, depressed, or hopeless", zh: "2. 感到心情低落、沮丧或绝望" },
+      { en: "3. Trouble falling or staying asleep, or sleeping too much", zh: "3. 入睡困难、睡不安稳或睡眠过多" },
+      { en: "4. Feeling tired or having little energy", zh: "4. 感觉疲倦或没有活力" },
+      { en: "5. Poor appetite or overeating", zh: "5. 食欲不振或吃太多" },
+      { en: "6. Feeling bad about yourself — or that you are a failure or have let yourself or your family down", zh: "6. 觉得自己很糟——或觉得自己很失败，或让自己、家人失望" },
+      { en: "7. Trouble concentrating on things, such as reading the newspaper or watching television", zh: "7. 对事物专注有困难，例如阅读报纸或看电视时" },
+      { en: "8. Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual", zh: "8. 动作或说话速度缓慢到别人已经察觉？或正好相反——烦躁或坐立不安、动来动去的情况更胜于平常" },
+      { en: "9. Thoughts that you would be better off dead, or of hurting yourself in some way", zh: "9. 有不如死掉或用某种方式伤害自己的念头" }
     ];
 
     const phqOptions = [
@@ -527,12 +508,10 @@
 
     function renderForms() {
       let adamHtml = "";
-
       adamQuestions.forEach(function (q, i) {
         const badge = q.keyItem
           ? '<span class="badge notranslate">Key Item / 核心项</span>'
           : "";
-
         adamHtml +=
           '<div class="question-row adam-row">' +
             '<div class="q-text notranslate">' +
@@ -549,14 +528,11 @@
             "</div>" +
           "</div>";
       });
-
       document.getElementById("adam-form").innerHTML = adamHtml;
 
       let phqHtml = "";
-
       phqQuestions.forEach(function (q, i) {
         let optsHtml = "";
-
         phqOptions.forEach(function (opt) {
           optsHtml +=
             '<label class="radio-pill" id="phq_' + i + "_" + opt.val + '_lbl">' +
@@ -564,7 +540,6 @@
               "<div><strong>" + opt.en + "</strong><br /><span>" + opt.zh + "</span></div>" +
             "</label>";
         });
-
         phqHtml +=
           '<div class="question-row">' +
             '<div class="q-text notranslate">' +
@@ -574,71 +549,67 @@
             '<div class="options-likert notranslate">' + optsHtml + "</div>" +
           "</div>";
       });
-
       document.getElementById("phq-form").innerHTML = phqHtml;
+    }
+
+    function isMaleSelected() {
+      return document.getElementById("gender").value === "male";
+    }
+
+    function toggleAdamSection() {
+      const male = isMaleSelected();
+      document.getElementById("adam-section").style.display = male ? "block" : "none";
+      document.getElementById("adam-skip-note").style.display = male ? "none" : "block";
     }
 
     function highlightSelection() {
       adamQuestions.forEach(function (_, i) {
-        const sel = document.querySelector(
-          'input[name="adam_' + i + '"]:checked'
+        const sel = document.querySelector('input[name="adam_' + i + '"]:checked');
+        document.getElementById("adam_" + i + "_yes_lbl").classList.toggle(
+          "selected-adam", Boolean(sel && sel.value === "1")
         );
-        document
-          .getElementById("adam_" + i + "_yes_lbl")
-          .classList.toggle(
-            "selected-adam",
-            Boolean(sel && sel.value === "1")
-          );
-        document
-          .getElementById("adam_" + i + "_no_lbl")
-          .classList.toggle(
-            "selected-adam",
-            Boolean(sel && sel.value === "0")
-          );
+        document.getElementById("adam_" + i + "_no_lbl").classList.toggle(
+          "selected-adam", Boolean(sel && sel.value === "0")
+        );
       });
-
       phqQuestions.forEach(function (_, i) {
-        const sel = document.querySelector(
-          'input[name="phq_' + i + '"]:checked'
-        );
+        const sel = document.querySelector('input[name="phq_' + i + '"]:checked');
         phqOptions.forEach(function (opt) {
-          document
-            .getElementById("phq_" + i + "_" + opt.val + "_lbl")
-            .classList.toggle(
-              "selected-phq",
-              Boolean(sel && Number(sel.value) === opt.val)
-            );
+          document.getElementById("phq_" + i + "_" + opt.val + "_lbl").classList.toggle(
+            "selected-phq", Boolean(sel && Number(sel.value) === opt.val)
+          );
         });
       });
     }
 
     function collectResponses() {
+      const gender = document.getElementById("gender").value;
+      const isMale = gender === "male";
+
       const adamAnswers = [];
       let adamAnswered = 0;
       let adamYesCount = 0;
 
-      adamQuestions.forEach(function (_, i) {
-        const sel = document.querySelector(
-          'input[name="adam_' + i + '"]:checked'
-        );
-        if (sel) {
-          const val = Number(sel.value);
-          adamAnswers.push(val);
-          adamAnswered++;
-          adamYesCount += val;
-        } else {
-          adamAnswers.push(null);
-        }
-      });
+      if (isMale) {
+        adamQuestions.forEach(function (_, i) {
+          const sel = document.querySelector('input[name="adam_' + i + '"]:checked');
+          if (sel) {
+            const val = Number(sel.value);
+            adamAnswers.push(val);
+            adamAnswered++;
+            adamYesCount += val;
+          } else {
+            adamAnswers.push(null);
+          }
+        });
+      }
+      // Non-male respondents: adamAnswers stays empty — intentionally not collected.
 
       const phqAnswers = [];
       let phqAnswered = 0;
       let phqTotal = 0;
-
       phqQuestions.forEach(function (_, i) {
-        const sel = document.querySelector(
-          'input[name="phq_' + i + '"]:checked'
-        );
+        const sel = document.querySelector('input[name="phq_' + i + '"]:checked');
         if (sel) {
           const val = Number(sel.value);
           phqAnswers.push(val);
@@ -649,12 +620,14 @@
         }
       });
 
-      const isAdamPositive =
-        adamAnswers[0] === 1 ||
-        adamAnswers[6] === 1 ||
-        adamYesCount >= 3;
-
-      const adamResult = isAdamPositive ? "Positive" : "Negative";
+      let adamResult = "N/A";
+      if (isMale) {
+        const isAdamPositive =
+          adamAnswers[0] === 1 ||
+          adamAnswers[6] === 1 ||
+          adamYesCount >= 3;
+        adamResult = isAdamPositive ? "Positive" : "Negative";
+      }
 
       let phqSeverity = "Minimal (0-4)";
       if (phqTotal >= 20) phqSeverity = "Severe (20-27)";
@@ -663,6 +636,8 @@
       else if (phqTotal >= 5) phqSeverity = "Mild (5-9)";
 
       return {
+        gender: gender,
+        isMale: isMale,
         participantId: document.getElementById("participantId").value.trim(),
         age: document.getElementById("age").value.trim(),
         waist: document.getElementById("waist").value.trim(),
@@ -687,22 +662,35 @@
     async function handleSubmit() {
       const data = collectResponses();
 
-      if (data.adamAnswered < 10 || data.phqAnswered < 9) {
+      if (!data.gender) {
         showBanner(
           "error",
-          "Please answer all questions before submitting (ADAM: " +
-            data.adamAnswered +
-            "/10, PHQ-9: " +
-            data.phqAnswered +
-            "/9). / 提交前请完成所有题目。"
+          "Please select your gender first (needed to decide whether the ADAM questionnaire applies). / 请先选择性别。"
         );
         return;
       }
 
-      if (
-        SCRIPT_URL.indexOf("YOUR_DEPLOYMENT_ID_HERE") !== -1 ||
-        !SCRIPT_URL
-      ) {
+      if (data.isMale && data.adamAnswered < 10) {
+        showBanner(
+          "error",
+          "Please answer all 10 ADAM questions (answered " +
+            data.adamAnswered +
+            "/10). / 请完成全部 10 道 ADAM 题目。"
+        );
+        return;
+      }
+
+      if (data.phqAnswered < 9) {
+        showBanner(
+          "error",
+          "Please answer all 9 PHQ-9 questions (answered " +
+            data.phqAnswered +
+            "/9). / 请完成全部 9 道 PHQ-9 题目。"
+        );
+        return;
+      }
+
+      if (SCRIPT_URL.indexOf("YOUR_DEPLOYMENT_ID_HERE") !== -1 || !SCRIPT_URL) {
         showBanner(
           "error",
           "Please replace SCRIPT_URL in index.html with your deployed Google Apps Script Web App URL."
@@ -720,9 +708,7 @@
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(data)
         });
-
         const res = await response.json();
-
         if (res.status === "success") {
           showBanner(
             "success",
@@ -732,16 +718,10 @@
               '). Click "Show Survey Results" to view results.'
           );
         } else {
-          showBanner(
-            "error",
-            "Error saving data / 保存失败: " + res.message
-          );
+          showBanner("error", "Error saving data / 保存失败: " + res.message);
         }
       } catch (err) {
-        showBanner(
-          "error",
-          "Network error / 网络连接错误: " + err.message
-        );
+        showBanner("error", "Network error / 网络连接错误: " + err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = "Submit to Google Sheet | 提交至 Google 表格";
@@ -754,43 +734,35 @@
       panel.scrollIntoView({ behavior: "smooth" });
 
       const data = collectResponses();
-      const personalDiv = document.getElementById(
-        "personal-results-container"
-      );
+      const personalDiv = document.getElementById("personal-results-container");
 
-      if (data.adamAnswered > 0 || data.phqAnswered > 0) {
+      if (data.isMale && data.adamAnswered > 0 || data.phqAnswered > 0) {
         const adamClass =
-          data.adamResult === "Positive" ? "positive" : "negative";
-        const phqClass =
-          data.phqTotal >= 10 || data.q9Score > 0
-            ? "positive"
-            : "negative";
-        const adamLabel =
-          data.adamResult === "Positive"
-            ? "POSITIVE / 阳性"
-            : "NEGATIVE / 阴性";
+          data.isMale && data.adamAnswered > 0
+            ? (data.adamResult === "Positive" ? "positive" : "negative")
+            : "not-applicable";
+        const adamText = data.isMale && data.adamAnswered > 0
+          ? ("<strong>ADAM Screening | 雄激素缺乏筛查：" +
+              (data.adamResult === "Positive" ? "POSITIVE / 阳性" : "NEGATIVE / 阴性") +
+              "</strong><br />" +
+              '<span>"Yes" count / “是”的题数：' +
+              data.adamYesCount + " / 10 (" + data.adamAnswered + "/10 answered)</span>")
+          : ("<strong>ADAM Screening | 雄激素缺乏筛查：N/A</strong><br />" +
+              "<span>Not applicable for your selected gender. / 对所选性别不适用。</span>");
 
+        const phqClass =
+          data.phqTotal >= 10 || data.q9Score > 0 ? "positive" : "negative";
+        const phqText =
+          "<strong>PHQ-9 Depression Score | 抑郁量表总分：" + data.phqTotal + " / 27</strong><br />" +
+          "<span>Severity / 程度分级：" + data.phqSeverity +
+          " (" + data.phqAnswered + "/9 answered)</span>";
+
+        const colClass = data.isMale ? "two-col" : "";
         personalDiv.innerHTML =
           '<h3 style="margin-top: 0; margin-bottom: 10px;">Your Current Assessment | 您本次的筛查得分</h3>' +
-          '<div class="personal-score-grid notranslate">' +
-            '<div class="score-card ' + adamClass + '">' +
-              "<strong>ADAM Screening | 雄激素缺乏筛查：" + adamLabel + "</strong><br />" +
-              '<span>"Yes" count / “是”的题数：' +
-              data.adamYesCount +
-              " / 10 (" +
-              data.adamAnswered +
-              "/10 answered)</span>" +
-            "</div>" +
-            '<div class="score-card ' + phqClass + '">' +
-              "<strong>PHQ-9 Depression Score | 抑郁量表总分：" +
-              data.phqTotal +
-              " / 27</strong><br />" +
-              "<span>Severity / 程度分级：" +
-              data.phqSeverity +
-              " (" +
-              data.phqAnswered +
-              "/9 answered)</span>" +
-            "</div>" +
+          '<div class="personal-score-grid ' + colClass + ' notranslate">' +
+            '<div class="score-card ' + adamClass + '">' + adamText + "</div>" +
+            '<div class="score-card ' + phqClass + '">' + phqText + "</div>" +
           "</div>";
       } else {
         personalDiv.innerHTML = "";
@@ -799,14 +771,9 @@
       document.getElementById("phq9-alert").style.display =
         data.q9Score > 0 ? "block" : "none";
 
-      const cohortDiv = document.getElementById(
-        "cohort-results-container"
-      );
+      const cohortDiv = document.getElementById("cohort-results-container");
 
-      if (
-        SCRIPT_URL.indexOf("YOUR_DEPLOYMENT_ID_HERE") !== -1 ||
-        !SCRIPT_URL
-      ) {
+      if (SCRIPT_URL.indexOf("YOUR_DEPLOYMENT_ID_HERE") !== -1 || !SCRIPT_URL) {
         cohortDiv.innerHTML =
           '<p style="color:#991b1b;">Configure SCRIPT_URL in index.html to load Google Sheet cohort results.</p>';
         return;
@@ -826,16 +793,14 @@
         }
 
         const n = summary.totalResponses;
-        const distEntries = Object.entries(
-          summary.phqDistribution || {}
-        );
+        const males = summary.maleCount || 0;
+        const distEntries = Object.entries(summary.phqDistribution || {});
         let barsHtml = "";
 
         distEntries.forEach(function (pair) {
           const label = pair[0];
           const count = pair[1];
           const pct = ((count / n) * 100).toFixed(1);
-
           barsHtml +=
             '<div class="bar-row">' +
               '<div class="bar-label">' +
@@ -849,51 +814,72 @@
         });
 
         let recentRowsHtml = "";
-
         (summary.recentSubmissions || []).forEach(function (r) {
+          const genderLabel =
+            r.gender === "male" ? "Male / 男" :
+            r.gender === "female" ? "Female / 女" :
+            r.gender === "other" ? "N/A / 不愿透露" : "—";
+          const adamCell =
+            r.gender === "male"
+              ? (r.adamYes + " (" + r.adamResult + ")")
+              : "N/A";
           recentRowsHtml +=
             "<tr>" +
               "<td>" + r.timestamp + "</td>" +
               "<td>" + r.participantId + "</td>" +
-              "<td>" + r.adamYes + " (" + r.adamResult + ")</td>" +
+              "<td>" + genderLabel + "</td>" +
+              "<td>" + adamCell + "</td>" +
               "<td>" + r.phqTotal + " — " + r.phqSeverity + "</td>" +
             "</tr>";
         });
 
+        const adamPctText = males > 0
+          ? (summary.adamPositivePct + "%")
+          : "N/A";
+        const adamPctLbl = males > 0
+          ? ("ADAM Positive (" + summary.adamPositiveCount + "/" + males + ")<br />ADAM 筛查阳性率")
+          : "ADAM Positive<br />ADAM 筛查阳性率";
+        const adamAvgText = males > 0 ? summary.avgAdamYes : "N/A";
+
         cohortDiv.innerHTML =
           '<div class="stat-grid">' +
             '<div class="stat-box"><span class="stat-num">' + n + '</span><span class="stat-lbl">Total Respondents<br />总受访人数</span></div>' +
-            '<div class="stat-box"><span class="stat-num">' + summary.adamPositivePct + '%</span><span class="stat-lbl">ADAM Positive (' + summary.adamPositiveCount + "/" + n + ')<br />ADAM 筛查阳性率</span></div>' +
-            '<div class="stat-box"><span class="stat-num">' + summary.avgAdamYes + '</span><span class="stat-lbl">Mean ADAM "Yes"<br />ADAM 平均阳性项数</span></div>' +
+            '<div class="stat-box"><span class="stat-num">' + males + '</span><span class="stat-lbl">Male Respondents<br />男性受访人数</span></div>' +
+            '<div class="stat-box"><span class="stat-num">' + adamPctText + '</span><span class="stat-lbl">' + adamPctLbl + '</span></div>' +
             '<div class="stat-box"><span class="stat-num">' + summary.avgPhqScore + '</span><span class="stat-lbl">Mean PHQ-9 Score<br />PHQ-9 平均总分</span></div>' +
           "</div>" +
-          '<h4 style="margin: 18px 0 10px;">PHQ-9 Severity Distribution | 抑郁程度分布</h4>' +
+          '<p class="subsection-note">' +
+            "ADAM statistics are computed over male respondents only (" + males + " males). " +
+            "PHQ-9 statistics are computed over all respondents (" + n + " total).<br>" +
+            "ADAM 统计仅基于男性受访者（" + males + " 人）。PHQ-9 统计基于全部受访者（" + n + " 人）。" +
+          "</p>" +
+          '<h4 style="margin: 18px 0 10px;">PHQ-9 Severity Distribution (all respondents) | 抑郁程度分布（全部受访者）</h4>' +
           barsHtml +
           '<h4 style="margin: 20px 0 8px;">Recent 5 Submissions | 最近 5 条提交记录</h4>' +
           "<table>" +
-            "<thead><tr><th>Timestamp / 时间</th><th>ID / 编号</th><th>ADAM (\"Yes\" / 结果)</th><th>PHQ-9 (Score / 分级)</th></tr></thead>" +
+            "<thead><tr><th>Timestamp / 时间</th><th>ID / 编号</th><th>Gender / 性别</th><th>ADAM (\"Yes\" / 结果)</th><th>PHQ-9 (Score / 分级)</th></tr></thead>" +
             "<tbody>" + recentRowsHtml + "</tbody>" +
           "</table>";
       } catch (err) {
         cohortDiv.innerHTML =
-          '<p style="color:#991b1b;">Error loading results: ' +
-          err.message +
-          "</p>";
+          '<p style="color:#991b1b;">Error loading results: ' + err.message + "</p>";
       }
     }
 
     function resetForm() {
       document.getElementById("adam-form").reset();
       document.getElementById("phq-form").reset();
+      document.getElementById("gender").value = "";
       document.getElementById("participantId").value = "";
       document.getElementById("age").value = "";
       document.getElementById("waist").value = "";
-      document.getElementById("statusBanner").className =
-        "status-banner";
+      document.getElementById("statusBanner").className = "status-banner";
+      toggleAdamSection();
       highlightSelection();
     }
 
     renderForms();
+    toggleAdamSection();
   </script>
 </body>
 </html>
