@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
   <title>Bilingual Health Screening: ADAM &amp; PHQ-9 | 双语健康筛查问卷</title>
   <style>
     :root {
@@ -422,8 +423,8 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVqIiToitFkrZzxpxhA_4kVCWXu5dJEVLATtm8DtVjHRIywqU48YuPBInSR51s5gzWUw/exec";
 
     // All 10 ADAM questions.
-    // FIX: Question 5 uses single quotes on the outside because the English text
-    // contains double quotes around "enjoyment of life".
+    // Question 5 uses single quotes because the English text contains
+    // double quotes around "enjoyment of life".
     const adamQuestions = [
       {
         en: "1. Do you have a decrease in libido (sex drive)?",
@@ -529,16 +530,16 @@
 
       adamQuestions.forEach(function (q, i) {
         const badge = q.keyItem
-          ? '<span class="badge">Key Item / 核心项</span>'
+          ? '<span class="badge notranslate">Key Item / 核心项</span>'
           : "";
 
         adamHtml +=
           '<div class="question-row adam-row">' +
-            '<div class="q-text">' +
+            '<div class="q-text notranslate">' +
               '<span class="q-en">' + q.en + " " + badge + "</span>" +
               '<span class="q-zh">' + q.zh + "</span>" +
             "</div>" +
-            '<div class="options-yesno">' +
+            '<div class="options-yesno notranslate">' +
               '<label class="radio-pill" id="adam_' + i + '_yes_lbl">' +
                 '<input type="radio" name="adam_' + i + '" value="1" onchange="highlightSelection()" /> Yes / 是' +
               "</label>" +
@@ -566,11 +567,11 @@
 
         phqHtml +=
           '<div class="question-row">' +
-            '<div class="q-text">' +
+            '<div class="q-text notranslate">' +
               '<span class="q-en">' + q.en + "</span>" +
               '<span class="q-zh">' + q.zh + "</span>" +
             "</div>" +
-            '<div class="options-likert">' + optsHtml + "</div>" +
+            '<div class="options-likert notranslate">' + optsHtml + "</div>" +
           "</div>";
       });
 
@@ -771,7 +772,7 @@
 
         personalDiv.innerHTML =
           '<h3 style="margin-top: 0; margin-bottom: 10px;">Your Current Assessment | 您本次的筛查得分</h3>' +
-          '<div class="personal-score-grid">' +
+          '<div class="personal-score-grid notranslate">' +
             '<div class="score-card ' + adamClass + '">' +
               "<strong>ADAM Screening | 雄激素缺乏筛查：" + adamLabel + "</strong><br />" +
               '<span>"Yes" count / “是”的题数：' +
